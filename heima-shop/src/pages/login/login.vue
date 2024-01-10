@@ -6,17 +6,7 @@ import { useMemberStore } from '@/stores';
 import type { LoginResult } from '@/types/member';
 import { onLoad } from '@dcloudio/uni-app';
 
-//code 
-let code = ''
-//获取手机号相关信息
-const onGetphonenumber: UniHelper.ButtonOnGetphonenumber = async (ev) => {
-  const encryptedData = ev.detail!.encryptedData!
-  const iv = ev.detail!.iv!
-  //登陆请求
-  await postLoginWxMinAPI({ code, encryptedData, iv })
-  //登陆成功
-  uni.showToast({ icon: 'none', title: '登陆成功！' })
-}
+
 //模拟获取手机号登陆
 const onGetPhonenumberSimple = async () => {
   const res = await postLoginWxMinSimpleAPI('13500000000')
@@ -32,11 +22,25 @@ const loginSuccess = (profile: LoginResult) => {
     uni.switchTab({ url: '/pages/my/my' })
   })
 }
+// #ifdef MP-WEIXIN
+
+//code 
+let code = ''
+//获取手机号相关信息
+const onGetphonenumber: UniHelper.ButtonOnGetphonenumber = async (ev) => {
+  const encryptedData = ev.detail!.encryptedData!
+  const iv = ev.detail!.iv!
+  //登陆请求
+  await postLoginWxMinAPI({ code, encryptedData, iv })
+  //登陆成功
+  uni.showToast({ icon: 'none', title: '登陆成功！' })
+}
 onLoad(async () => {
   //获取微信code 
   const result = await wx.login()
   code = result.code
 })
+// #endif
 </script>
 
 <template>
@@ -45,17 +49,21 @@ onLoad(async () => {
       <image src="https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/logo_icon.png"></image>
     </view>
     <view class="login">
+      <!-- #ifdef H5 -->
       <!-- 网页端表单登录 -->
       <!-- <input class="input" type="text" placeholder="请输入用户名/手机号码" /> -->
       <!-- <input class="input" type="text" password placeholder="请输入密码" /> -->
       <!-- <button class="button phone">登录</button> -->
+      <!-- #endif -->
 
       <!-- 小程序端授权登录 -->
       <!-- 小程序登陆-获取手机号固定写法 -->
+      <!-- #ifdef MP-WEIXIN -->
       <button class="button phone" open-type="getPhoneNumber" @getphonenumber="onGetphonenumber">
         <text class="icon icon-phone"></text>
         手机号快捷登录
       </button>
+      <!-- #endif -->
       <view class="extra">
         <view class="caption">
           <text>其他登录方式</text>
